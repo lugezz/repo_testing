@@ -1,0 +1,4 @@
+{
+    "myworkdayjobs.com 1": {"pattern": "\\.wd1","scrap_type": "before_scrap_param",
+        "look_for": "myworkdayjobs.com", "type_of_search": "site:"}
+}
