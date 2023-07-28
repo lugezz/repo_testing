@@ -1,4 +1,3 @@
-from cgi import test
 import re
 
 formula_1 = "lala(1,2,3)+baba(3,2,1)/dada(3,2,1)"
@@ -114,7 +113,7 @@ def get_formulas_str_updated(formulas_str: str) -> tuple:
             lala(1,2,3) -> |formula_000|
             baba(3,2,1) -> |formula_001|
             dada(3,2,1) -> |formula_002|
-        3. Return the string and the dictionary in a tuple        
+        3. Return the string and the dictionary in a tuple
 
     """
     # 1. Get the formulas from the string to dict
@@ -154,9 +153,9 @@ formula_to_execute_complex = "(|formula_001| + |formula_002|) / |formula_003|"
 
 formulas_dict = {
             '001': 'Monto()',
-            '002': 'suma_basica(1,2,|formula_003|)',
-            '003': 'funcion_si(3>2,4,5)',
-            '004': 'funcion_si(1,2,3)',
+            '002': 'SumaBasica(1,2,|formula_003|)',
+            '003': 'FuncionSi(3>2,4,5)',
+            '004': 'FuncionSi(1,2,3)',
         }
 
 
@@ -172,13 +171,15 @@ def suma_basica(*args) -> float:
     return sum(args)
 
 
-def funcion_si(option_yes, option_no, condition):
+def funcion_si(condition: bool, option_yes: any, option_no: any) -> any:
     # Básica función si.
     return option_yes if condition else option_no
 
 
 FUNCIONES_DICT = {
     'Monto': monto,
+    'FuncionSi': funcion_si,
+    'SumaBasica': suma_basica,
 }
 
 
@@ -189,6 +190,17 @@ def get_formulas_and_replace(formula_str: str, formulas_dict: dict) -> str:
         formula_str = formula_str.replace(f"|{formula}|", str(execute_formula(formula, formulas_dict)))
 
     return formula_str
+
+
+def is_float(element: any) -> bool:
+    # If you expect None to be passed:
+    if element is None:
+        return False
+    try:
+        float(element)
+        return True
+    except ValueError:
+        return False
 
 
 def execute_formula(formula_name: str, formulas_dict: dict) -> float:
@@ -212,8 +224,34 @@ def execute_formula(formula_name: str, formulas_dict: dict) -> float:
     formula_key = formula_name.replace('formula_', '')
     this_formula = formulas_dict[formula_key]
     formulas_internas = re.findall(r'\|([^|]+)\|', this_formula)
-    if formulas_internas:
-        print("formulas_internas", formulas_internas)
+    for formula_interna in formulas_internas:
+        this_formula = this_formula.replace(f"|{formula_interna}|",
+                                            str(execute_formula(formula_interna, formulas_dict)))
+
+    # 2. Execute the formula
+    #   The formula is a string like this: "funcion_si(1,2,3)"
+    #   We have the function name and the arguments separated by the parenthesis (open)
+    formula, args = this_formula.split('(')
+    args = args.replace(')', '')
+    formula_function = FUNCIONES_DICT[formula]
+    formula_args = args.split(',')
+    #   Delete empty arguments
+    while '' in formula_args:
+        formula_args.remove('')
+    #   Convert the arguments to float if possible
+    clean_formula_args = []
+    for arg in formula_args:
+        if is_float(arg):
+            clean_formula_args.append(float(arg))
+        else:
+            clean_formula_args.append(arg)
+
+    print("this_formula", this_formula)
+    print("formula_function", formula_function)
+    print("formula_args", clean_formula_args)
+
+    # And finally execute the formula
+    resp = formula_function(*clean_formula_args)
 
     return resp
 
