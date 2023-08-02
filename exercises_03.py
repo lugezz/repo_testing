@@ -118,5 +118,8 @@ for i in range(len(num)):
     else:
         pass
 
-# printing result
 print(x)
+
+# Antoher way to do it
+list_2 = list(set(num))
+print(list_2)
