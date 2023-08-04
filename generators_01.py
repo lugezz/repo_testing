@@ -42,3 +42,18 @@ print(type(values))
 
 for i in values:
     print(i)
+
+
+# This is another generator example
+# and it is a fibonacci sequence
+def fibo():
+    a, b = 0, 1
+    while True:
+        yield a
+        a, b = b, a+b
+
+
+# Test function
+f = fibo()
+for i in range(10):
+    print(f.__next__())
