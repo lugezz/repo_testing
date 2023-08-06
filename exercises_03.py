@@ -123,3 +123,13 @@ print(x)
 # Antoher way to do it
 list_2 = list(set(num))
 print(list_2)
+
+"""
+Excercise 16: Write a program in Python to find the second largest number in a list.
+Hint
+Given num = [2,3,4,5,2,6,3,2]
+"""
+
+num = [2, 3, 4, 5, 2, 6, 3, 2]
+num.sort()
+print(num[-2])
