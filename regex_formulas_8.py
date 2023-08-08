@@ -50,7 +50,7 @@ def find_closing_parenthesis_position(text: str, start_pos: int) -> int:
     return -1
 
 
-def get_formula_dict(formula_str: str, level: int = 0) -> dict:
+def get_formula_dict(formula_str: str, level: int = 0, parent: str = '') -> dict:
     """ Function to get the formulas inside a string and return a dictionary
         this function read character by character and when it finds a letter + '('
         if a new letter + '(' is found, the level will be increased and the
@@ -80,16 +80,25 @@ def get_formula_dict(formula_str: str, level: int = 0) -> dict:
     while i < len(formula_str):
         # Find a formula by the letter + '('
         if re.match(r'[a-zA-Z]\(', formula_str[i-1:i+1]):
+            if f'level_{level:02d}' not in formula_dict:
+                formula_dict[f'level_{level:02d}'] = {}
+
             end = find_closing_parenthesis_position(formula_str, i)
             i = end
             this_formula = formula_str[idx-1:end+1]
+            this_key = f'{parent}{len(formula_dict[f"level_{level:02d}"])+1:03d}'
+            if this_key == '001002':
+                print("Log")
             if has_internal_formula(this_formula):
                 this_formula_args = this_formula[this_formula.find('(')+1:-1]
-                child_dict = get_formula_dict(this_formula_args, level + 1)
-                formula_dict.update(child_dict)
-            if f'level_{level:02d}' not in formula_dict:
-                formula_dict[f'level_{level:02d}'] = {}
-            formula_dict[f'level_{level:02d}'][f'{len(formula_dict[f"level_{level:02d}"])+1:03d}'] = this_formula
+                child_dict = get_formula_dict(this_formula_args, level + 1, this_key)
+                # Let's update formula_dict with the child_dict for any level
+                for key, value in child_dict.items():
+                    if key not in formula_dict:
+                        formula_dict[key] = value
+                    else:
+                        formula_dict[key].update(value)
+            formula_dict[f'level_{level:02d}'][this_key] = this_formula
 
         # restart the idx if this is a separator
         if formula_str[i-1] in separators:
@@ -107,17 +116,16 @@ def clean_formulas_dict(formulas_dict: dict) -> dict:
     cleaned_dict = {}
     for i in range(levels, 0, -1):
         for key, value in formulas_dict[f'level_{i:02d}'].items():
+            cd_key_str = str(len(cleaned_dict) + 1).zfill(3)
+            cleaned_dict[cd_key_str] = value
             for key2, value2 in formulas_dict[f'level_{i-1:02d}'].items():
                 if has_internal_formula(value2):
                     if value in value2:
                         formulas_dict[f'level_{i-1:02d}'][key2] = formulas_dict[f'level_{i-1:02d}'][key2].replace(
-                           value, f"|Formula_{key}|")
+                           value, f"|Formula_{cd_key_str}|")
                 else:
-                    cd_key = len(cleaned_dict) + 1
-                    cleaned_dict[cd_key] = value2
-
-            cd_key = len(cleaned_dict) + 1
-            cleaned_dict[cd_key] = value
+                    cd_key_str = str(len(cleaned_dict) + 1).zfill(3)
+                    cleaned_dict[cd_key_str] = value2
 
     return cleaned_dict
 
@@ -137,6 +145,6 @@ def clean_formula_str(input_string: str) -> str:
 test_formula = formula_real_complex
 cleaned_test_formula = clean_formula_str(test_formula)
 test_formula_dict = get_formula_dict(cleaned_test_formula)
-print("Formula Dict", test_formula_dict)
+# print("Formula Dict", test_formula_dict)
 test_formula_cleaned_dict = clean_formulas_dict(test_formula_dict)
 print("Cleaned dict", test_formula_cleaned_dict)
