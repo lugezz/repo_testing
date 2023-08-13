@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 
 def find_any_letter_group_distance(text: str) -> int:
     """
@@ -35,28 +33,27 @@ result_2 = find_any_letter_group_distance(text_2)
 print(result_2)  # Output: 1
 
 
-def find_any_letter_group_distance_2(text: str) -> int:
-    """
-    Find the greatest distance between any two letters in a text.
-    It takes 2 letters groups and compares them to find the greatest distance.
-    taking into account the position of the letters in the text.
-    It returns -1 if no equal groups found.
-    """
-    greatest_distance = -1
-    dict_letters = defaultdict(lambda: -1)
+def find_greatest_distance(text, group_size):
+    positions = {}
+    max_distance = -1
 
-    for idx, letter in enumerate(text):
-        next_letter = text[idx:idx+2]
-        greatest_distance = max(greatest_distance, idx - dict_letters[next_letter])
-        dict_letters[next_letter] = max(dict_letters[next_letter], idx)
+    for i in range(len(text) - group_size + 1):
+        group = text[i:i+group_size]
+        if group in positions:
+            distance = i - positions[group]
+            max_distance = max(max_distance, distance)
+        else:
+            positions[group] = i
 
-    return greatest_distance - 2
+    return max_distance
 
 
-# Test the function
-result_1b = find_any_letter_group_distance_2(text_1)
-print(result_1b)  # Output: 17
+text1 = "pruebadeunapruebapr"
+group_size1 = 2
+result1 = find_greatest_distance(text1, group_size1)
+print(f"Greatest distance in '{text1}' for groups of size {group_size1} is: {result1}")
 
-text_2 = "aaa"
-result_2b = find_any_letter_group_distance_2(text_2)
-print(result_2b)  # Output: 1
+text2 = "aaa"
+group_size2 = 2
+result2 = find_greatest_distance(text2, group_size2)
+print(f"Greatest distance in '{text2}' for groups of size {group_size2} is: {result2}")
