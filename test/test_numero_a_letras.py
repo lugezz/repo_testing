@@ -1,6 +1,6 @@
 import unittest
 
-from numero_a_letras import numero_a_letras, numero_a_moneda
+from numero_a_letras_artime import numero_a_letras, numero_a_moneda
 
 
 class TestNumeroALetras(unittest.TestCase):
