@@ -15,7 +15,7 @@ def factorial(n):
             return 1
         else:
             return n * inner_factorial(n-1)
-    if type(n) == int and n >= 0:
+    if isinstance(n, int) and n >= 0:
         return inner_factorial(n)
     else:
         raise TypeError("n should be a positve int or 0")
