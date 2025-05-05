@@ -1,0 +1,13 @@
+def function_uno(list_prueba: list):
+    list_prueba.append("lala")
+
+
+def function_dos():
+    my_list = [1, 2, 3]
+    function_uno(list_prueba=my_list)
+
+    return my_list
+
+
+prueba = function_dos()
+print(prueba)
